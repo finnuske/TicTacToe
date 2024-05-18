@@ -1,10 +1,11 @@
 from turtle import Turtle, Screen
-import time
 import ctypes
 
 
-fields = [("A1", -300, -200),("A2", -300, 0),("A3",-300,200 ), ("B1", -100, -200), ("B2",-100,0), ("B3",-100,200), ("C1",100,-200), ("C2",100,0),("C3",100,200)]
+fields = ("A1", "A2", "A3", "B1", "B2", "B3", "C1", "C2", "C3")
+coordinates = [(-300, -300), (-300, -100), (-300, 100), (-100, -300), (-100, -100), (-100, 100), (100, -300), (100, -100), (100, 100)]
 # field gives an array with each a tuple with the: 'name', x_pos, y_pos for creating all the 9 field spots
+# middle of the screen has the coordinate point (0,0)
 turtles = []
 
 SIZE = 600
@@ -13,7 +14,7 @@ player = 1          # player 1 is: X; player 2 is: O
 
 screen = Screen()
 screen.setup(SIZE, SIZE)
-screen.title("TicTacToe by Finn Wulff")
+screen.title(" | --- TicTacToe --- |")
 
 
 class MyTurtle(Turtle):
@@ -27,9 +28,9 @@ class MyTurtle(Turtle):
         self.shapesize(5, 5, 100)
         self.color("white")
         self.pu()
-        self.goto((x_pos+100), y_pos)
+        self.goto((x_pos+100), (y_pos+100))
 
-    def set_O_Shape(self, xdummy, ydummy):
+    def set_O_Shape(self):
         # reset turtle
         self.reset()
         self.speed(0)
@@ -44,7 +45,7 @@ class MyTurtle(Turtle):
         self.clear()
         self.pu()
 
-    def set_X_Shape(self, xdummy, ydummy):
+    def set_X_Shape(self):
         # reset turtle
         self.reset()
         self.speed(0)
@@ -64,18 +65,18 @@ class MyTurtle(Turtle):
         self.rt(45)
         self.shapesize(1,1,20)
 
-    def set_X(self, xdummy, ydummy):
+    def set_X(self):
         # exchange the empty field to a 'X' figure
         x_pos, y_pos = self.position()
-        self.set_X_Shape(xdummy, ydummy)
-        print(x_pos, y_pos)
+        self.set_X_Shape()
+        print("X PLAYER(1):", x_pos, y_pos)
         self.goto(x_pos, y_pos)
 
-    def set_O(self, xdummy, ydummy):
+    def set_O(self):
         # exchange the empty field to a 'O' figure
         x_pos, y_pos = self.position()
-        self.set_O_Shape(xdummy, ydummy)
-        print(x_pos, y_pos)
+        self.set_O_Shape()
+        print("O PLAYER(2):", x_pos, y_pos)
         self.goto((x_pos-RADIUS+RADIUS/5), y_pos)
 
     def reset_field(self):
@@ -87,268 +88,99 @@ class MyTurtle(Turtle):
 def createMyTurtles(fields):
     # creating all turtles and adding them to an array
     for i in range(9):
-        name, x_pos, y_pos = fields[i]
+        name = fields[i]
+        x_pos, y_pos = coordinates[i]
         my_turtle = MyTurtle(name, x_pos, y_pos)
         turtles.append(my_turtle)
 
 def createCanvas(screen):
     # create the tictactoe field with an temporary turtle
-    pen_temp = Turtle()
-    pen_temp.speed(0)
-    pen_temp.lt(90)
-    pen_temp.pu()
-    pen_temp.goto(-100, -300)
-    pen_temp.pd()
-    pen_temp.fd(600)
-    pen_temp.pu()
-    pen_temp.goto(100, -300)
-    pen_temp.pd()
-    pen_temp.fd(600)
-    pen_temp.rt(90)
-    pen_temp.pu()
-    pen_temp.goto(-300, -100)
-    pen_temp.pd()
-    pen_temp.fd(600)
-    pen_temp.pu()
-    pen_temp.goto(-300, 100)
-    pen_temp.pd()
-    pen_temp.fd(600)
-    pen_temp.hideturtle()
+    pen_bg = Turtle()
+    pen_bg.speed(0)
+    pen_bg.lt(90)
+    pen_bg.pu()
+    pen_bg.goto(-100, -300)
+    pen_bg.pd()
+    pen_bg.fd(600)
+    pen_bg.pu()
+    pen_bg.goto(100, -300)
+    pen_bg.pd()
+    pen_bg.fd(600)
+    pen_bg.rt(90)
+    pen_bg.pu()
+    pen_bg.goto(-300, -100)
+    pen_bg.pd()
+    pen_bg.fd(600)
+    pen_bg.pu()
+    pen_bg.goto(-300, 100)
+    pen_bg.pd()
+    pen_bg.fd(600)
+    pen_bg.hideturtle()
 
-def playerMove_A1(xdummy, ydummy):
+def playerMove(xdummy, ydummy):
     global player
 
-    if turtle_A1.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_A1.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_A1.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
+    # set index start
+    index = 0
+    print("Clicked here:", xdummy, ydummy)
+    # get index
+    for start_x, start_y in coordinates:
+        # compare xdummy and ydummy with coordinate list
+        print(start_x, start_y)
+        if start_x <= xdummy < start_x + 200 and start_y <= ydummy < start_y + 200:
+            print("Found!", start_x, start_y)
+            # chosen field was found
+            if turtles[index].shape() != "square":
+                # field was already chosen by a player
+                print("Error! Field is already taken!")
+            else:
+                if player == 1:
+                    # player: X
+                    turtles[index].set_X()
+                    checkWin(player)
+                    player = 2
+                else:
+                    # player: O
+                    turtles[index].set_O()
+                    checkWin(player)
+                    player = 1
+            # move is finished so end function
+            return 0
 
-def playerMove_A2(xdummy, ydummy):
-    global player
+        # increase index every cycle
+        index += 1
 
-    if turtle_A2.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_A2.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_A2.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
+def checkWin(player):
+    # the turtle_.shape() != "square" is to be sure the game isnt over if all positions are still empty "squares"
+    if(turtles[0].shape() != "square" and turtles[0].shape() == turtles[4].shape()  and turtles[4].shape()  == turtles[8].shape()):     # oben rechts nach unten links
+        winEvent(player)
+    elif(turtles[2].shape() != "square" and turtles[2].shape() == turtles[4].shape() and turtles[6].shape() == turtles[4].shape()):   # oben links nach unten rechts
+        winEvent(player)
+    elif(turtles[2].shape() != "square" and turtles[2].shape() == turtles[5].shape() and turtles[8].shape() == turtles[5].shape()):   # obere reihe horizontal
+        winEvent(player)
+    elif (turtles[1].shape() != "square" and turtles[1].shape() == turtles[4].shape() and turtles[7].shape() == turtles[4].shape()):  # mittlere reihe horiz.
+        winEvent(player)
+    elif (turtles[0].shape() != "square" and turtles[0].shape() == turtles[3].shape() and turtles[6].shape() == turtles[3].shape()):  # untere reihe horiz.
+        winEvent(player)
+    elif (turtles[0].shape() != "square" and turtles[0].shape() == turtles[1].shape() and turtles[2].shape() == turtles[1].shape()):  # linke reihe vertik.
+        winEvent(player)
+    elif (turtles[3].shape() != "square" and turtles[3].shape() == turtles[4].shape() and turtles[5].shape() == turtles[4].shape()):  # mittlere reihe vertik.
+        winEvent(player)
+    elif (turtles[8].shape() != "square" and turtles[8].shape() == turtles[7].shape() and turtles[6].shape() == turtles[7].shape()):  # rechte reihe vertik.
+        winEvent(player)
 
-def playerMove_A3(xdummy, ydummy):
-    global player
-
-    if turtle_A3.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_A3.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_A3.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def playerMove_B1(xdummy, ydummy):
-    global player
-
-    if turtle_B1.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_B1.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_B1.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def playerMove_B2(xdummy, ydummy):
-    global player
-
-    if turtle_B2.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_B2.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_B2.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def playerMove_B3(xdummy, ydummy):
-    global player
-
-    if turtle_B3.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_B3.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_B3.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def playerMove_C1(xdummy, ydummy):
-    global player
-
-    if turtle_C1.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_C1.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_C1.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def playerMove_C2(xdummy, ydummy):
-    global player
-
-    if turtle_C2.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_C2.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_C2.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def playerMove_C3(xdummy, ydummy):
-    global player
-
-    if turtle_C3.shape() != "square":
-        print("Error! Field is already taken!")
-    else:
-        if player == 1:
-            turtle_C3.set_X(xdummy, ydummy)
-            check_win(player)
-            player = 2
-        elif player == 2:
-            turtle_C3.set_O(xdummy, ydummy)
-            check_win(player)
-            player = 1
-        else:
-            print("Error! Player out of range:", player)
-        # check win statement
-
-def check_win(player):
-    if player == 1:
-        # check for X row
-        if(turtle_A1.shape() == "X" and turtle_B2.shape() == "X" and turtle_C3.shape() == "X"):     # oben rechts nach unten links
-            win_event(player)
-        elif(turtle_A3.shape() == "X" and turtle_B2.shape() == "X" and turtle_C1.shape() == "X"):   # oben links nach unten rechts
-            win_event(player)
-        elif(turtle_A3.shape() == "X" and turtle_B3.shape() == "X" and turtle_C3.shape() == "X"):   # obere reihe horizontal
-            win_event(player)
-        elif (turtle_A2.shape() == "X" and turtle_B2.shape() == "X" and turtle_C2.shape() == "X"):  # mittlere reihe horiz.
-            win_event(player)
-        elif (turtle_A1.shape() == "X" and turtle_B1.shape() == "X" and turtle_C1.shape() == "X"):  # untere reihe horiz.
-            win_event(player)
-        elif (turtle_A1.shape() == "X" and turtle_A2.shape() == "X" and turtle_A3.shape() == "X"):  # linke reihe vertik.
-            win_event(player)
-        elif (turtle_B1.shape() == "X" and turtle_B2.shape() == "X" and turtle_B3.shape() == "X"):  # mittlere reihe vertik.
-            win_event(player)
-        elif (turtle_C3.shape() == "X" and turtle_C2.shape() == "X" and turtle_C1.shape() == "X"):  # rechte reihe vertik.
-            win_event(player)
-
-    elif player == 2:
-        # check for O row
-        if (turtle_A1.shape() == "O" and turtle_B2.shape() == "O" and turtle_C3.shape() == "O"):  # oben rechts nach unten links
-            win_event(player)
-        elif (turtle_A3.shape() == "O" and turtle_B2.shape() == "O" and turtle_C1.shape() == "O"):  # oben links nach unten rechts
-            win_event(player)
-        elif (turtle_A3.shape() == "O" and turtle_B3.shape() == "O" and turtle_C3.shape() == "O"):  # obere reihe horizontal
-            win_event(player)
-        elif (turtle_A2.shape() == "O" and turtle_B2.shape() == "O" and turtle_C2.shape() == "O"):  # mittlere reihe horiz.
-            win_event(player)
-        elif (turtle_A1.shape() == "O" and turtle_B1.shape() == "O" and turtle_C1.shape() == "O"):  # untere reihe horiz.
-            win_event(player)
-        elif (turtle_A1.shape() == "O" and turtle_A2.shape() == "O" and turtle_A3.shape() == "O"):  # linke reihe vertik.
-            win_event(player)
-        elif (turtle_B1.shape() == "O" and turtle_B2.shape() == "O" and turtle_B3.shape() == "O"):  # mittlere reihe vertik.
-            win_event(player)
-        elif (turtle_C3.shape() == "O" and turtle_C2.shape() == "O" and turtle_C1.shape() == "O"):  # rechte reihe vertik.
-            win_event(player)
-    else:
-        print("Error! Player out of range:", player)
-
-def win_event(player):
+def winEvent(player):
     win_text = "Player " + str(player) + " won!"
     ctypes.windll.user32.MessageBoxW(0, win_text, "TicTacToe Info")
     quit()
 
 
 def main(fields, screen):
-    global turtle_A1,turtle_A2,turtle_A3,turtle_B1,turtle_B2,turtle_B3,turtle_C1,turtle_C2,turtle_C3
-
     createMyTurtles(fields)
     createCanvas(screen)
 
-    turtle_A1 = turtles[0]
-    turtle_A2 = turtles[1]
-    turtle_A3 = turtles[2]
-    turtle_B1 = turtles[3]
-    turtle_B2 = turtles[4]
-    turtle_B3 = turtles[5]
-    turtle_C1 = turtles[6]
-    turtle_C2 = turtles[7]
-    turtle_C3 = turtles[8]
-
-    turtle_A1.onclick(playerMove_A1)
-    turtle_A2.onclick(playerMove_A2)
-    turtle_A3.onclick(playerMove_A3)
-    turtle_B1.onclick(playerMove_B1)
-    turtle_B2.onclick(playerMove_B2)
-    turtle_B3.onclick(playerMove_B3)
-    turtle_C1.onclick(playerMove_C1)
-    turtle_C2.onclick(playerMove_C2)
-    turtle_C3.onclick(playerMove_C3)
+    for i in range(9):
+        turtles[i].onclick(playerMove)
 
     screen.onkeypress(quit, "Escape")       # Esc closes the programm
 
