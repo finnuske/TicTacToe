@@ -12,7 +12,7 @@ if the player clicks on a field. In every player move the checkWin functions is 
 (This function still needs a bit of rework)
 
 # Changes
-The program had a lot of unnecessary code (probably still has) that I fixed.
+The program had a lot of unnecessary code (probably still has) that I fixed. But I still tried to keep the old idea.
 
 - win conditions were double for each player, which is now at least for each player the same statements
 - saved all of the turtles in an array instead of initializing a variable for each
